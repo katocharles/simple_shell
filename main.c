@@ -2,41 +2,48 @@
 
 int main(int argc, char *argv[], char **env)
 {
-	char *buff, *command_prompt = "BasicShell$ ";
+	/*create pointers to temp storage (buffer) and prompt*/
+	char *buffer, *command_prompt = "BasicShell$ ";
 	bool pipe = false;
-	size_t buff_len = 0;
+	size_t buffer_length = 0;
 	ssize_t size;
 	pid_t pid;
 	int status;
 
-	while (true && !pipe) /* while loop enables prompt to reoccour */
+	while (true && !pipe) /* while loop enables prompt to re-occur */
 	{
 		/* Tests whether file descriptor comes from terminal or elsewhere */
 		if (isatty(STDIN_FILENO) == 0)
 			pipe = true;
 
+		/* Write command prompt to the terminal */
 		write(STDOUT_FILENO, command_prompt, 12);
-		/* Writes the command prompt to the terminal */
 
-		size = getline(&buff, &buff_len, stdin);
-		/* In case it Returns an Error: */
+		/* dynamically allocate enough space with getline */
+		size = getline(&buffer, &buffer_length, stdin);
+
+		/* check if space allocation failed */
 		if (size == -1)
 		{
 			perror("Getline function error encountered");
-			free(buff); /* getline allocates space dynamically */
+			free(buffer);
 			exit(EXIT_FAILURE);
 		}
-		if (buff[size - 1] == '\n')
-			(buff[size - 1] = '\0');
-		/* Adding a null terminator because getline permanently alters the original string */
 
+		/* Adding a null terminator because getline permanently alters the original string */
+		if (buffer[size - 1] == '\n')
+			(buffer[size - 1] = '\0');
+
+		/* start a child process */
 		pid = fork();
-		/* In case it Returns an Error */
+
+		/* check if starting child process failed */
 		if (pid == -1)
 		{
 			perror("Fork function error encountered");
 			exit(EXIT_FAILURE);
 		}
+
 		/* if (pid == -1)
 		 * insert execve function here.
 		 */
@@ -48,6 +55,8 @@ int main(int argc, char *argv[], char **env)
 			exit(EXIT_FAILURE);
 		}
 	}
-	free(buff);
+
+	free(buffer);
+
 	return (0);
 }
