@@ -11,6 +11,7 @@
 int main(int argc, char *argv[], char **env)
 {
 	char *command;
+	char *exit_text = "Sucessfully exited BasicShell...";
 
 	/**
 	 * create an infinite loop 
@@ -37,7 +38,7 @@ int main(int argc, char *argv[], char **env)
 		}
 
 		/* just return entered command */
-		printf("%s\n", command);
+		write(STDOUT_FILENO, exit_text, 32);
 
 		/* free allocated memory */
 		free(command);
